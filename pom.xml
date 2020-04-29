@@ -38,4 +38,18 @@
 			</plugin>
 		</plugins>
 	</build>
+	
+	<!-- Developer Info -->
+
+	<developers>
+		<developer>
+			<id>ramisetty.v</id>
+			<name>Vijay Ramisetty</name>
+			<email>ramisetty.v@outlook.com</email>
+			<organization>MyOrganization</organization>
+			<roles>
+				<role>Developer</role>
+			</roles>
+		</developer>
+	</developers>
 </project>
