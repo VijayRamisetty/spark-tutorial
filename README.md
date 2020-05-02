@@ -54,13 +54,13 @@ eclipse
 	<dependencies>
 			<dependency>
 				<groupId>org.apache.spark</groupId>
-				<artifactId>spark-core_2.10</artifactId>
-				<version>2.0.0</version>
+				<artifactId>spark-core_2.11</artifactId>
+				<version>2.2.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.spark</groupId>
-				<artifactId>spark-sql_2.10</artifactId>
-				<version>2.0.0</version>
+				<artifactId>spark-sql_2.11</artifactId>
+				<version>2.2.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.hadoop</groupId>
@@ -285,6 +285,7 @@ Transformations
 	reduceByKey *
 	sortByKey *
 	join
+	
 Actions
 ---------------
 	reduce
@@ -326,5 +327,143 @@ sortByKey
 					.foreach(x-> System.out.println(x));
 
 
-CHAPTER 10 - Sort & Coalesce
+CHAPTER 10 - Sort, Coalesce & Collect 
+=====================================
+
+Sort
+-----
+sort does not work well with foreach
+
+-	// sort not works well with foreach 
+-	// reason : driver sending foreach print to all nodes and 
+-	// all nodes are running foreach println in parallel 
+-	// almost like multiple threads on single node trying to print ,
+-	// almost like multiple tasks on multiple nodes trying to print ,
+-	// i.e, foreach is executing the lambda on each partition in parallel
+
+	sorted_count_word.foreach(x-> System.out.println(x));
+	
+	
+- conclusion: Any action other than foreach , result is always a sorted output
+- example : **sorted_count_word.take(10)** <-- always knows rdd is sorted and have to get the top ten regardless of partition.
+
+
+
+Coalesce
+--------
+
+when to use  coalesce
+- After performing many transforamtions ( and maybe actions ) on our multi Terabyte multi partition RDD, we have now reached the point where we only have a small amount of data
+
+- For the remaining transforamtions, there's no point in continuing across 1000 partitions- any shuffles will be pointlessly expensive
+
+- Coalesce is just a way of reducing the number of partitions
+
+
+Collect
+--------
+- caution	: this pulls all results to driver , which blots 
+- API says	: return an array that contains **all of the elements** in this RDD.
+
+
+
+CHAPTER 11 - Understanding Job Progress Output
+==============================================
+
+Example:
+
+[Stage 0:======>                                                (3 + 8) / 46]
+
+( x + y ) / 46 
+  - x = how many tasks completed ( x will be changing till x becomes 46 ) 
+  - y = how many currently running
+  
+stage 0 need tasks = 46 = partitions
+ 
+so 46*64MB  = 2944 MB = 2.875 GB = inputSize 
+
+
+CHAPTER 12 - JOINS
+==================
+
+join ( innerjoin) : 
+------------------ 
+
+-	match and get which are present in both
+
+	//<user, <visits,name>>    note: Join itself is InnerJoin
+	JavaPairRDD<Integer, Tuple2<Integer, String>> joinedRdd  = user_visit_rdd.join(user_name_rdd);
+
+	
+	(4,(18,Doris))
+	(6,(4,Raquel))
+
+(Left) OuterJoin
+-----------------
+-	get all on Left & also matching on Right 
+- 	get all on Left & non matching with Right [ as Optional . note: here we don't have null concept ]
+
+		//<user, <visits,Optinal<name>>>   
+		 JavaPairRDD<Integer, Tuple2<Integer, Optional<String>>> leftOuterJoinRdd = user_visit_rdd.leftOuterJoin(user_name_rdd);
+
+	(4,(18,Optional[Doris]))
+	(6,(4,Optional[Raquel]))
+	(10,(9,Optional.empty))
+
+
+How to Handle Optionals
+------------------------
+
+	leftOuterJoinRdd.foreach(x-> {
+		Integer user_id = x._1;
+		Integer views =x._2._1;
+		String  name = x._2._2.orElse("BLANK");  // x._2._2.isPresent() - boolean can also be used
+				 
+		System.out.println( user_id + " " + views + " "  + name);
+			 }
+
+	----handling Optionals -----
+	4 18 Doris
+	6 4 Raquel
+	10 9 BLANK
+
+(Right) OuterJoin
+-----------------
+-	get all on Right & also matching on Left 
+- 	get all on Right & non matching with Left [ as Optional ]
+
+
+Full OuterJoin
+--------------
+- All Elements on both sides will appear 
+- if any columns don't have values will be Optionals 
+
+
+Cartesian Join 
+---------------
+creates as  Cross Join , therefore no Optionals
+
+	----Cartesian JOIN  -----
+	((4,18),(1,John))
+	((4,18),(2,Bob))
+	((4,18),(3,Alice))
+	((4,18),(4,Doris))
+	((4,18),(5,Marybelle))
+	((4,18),(6,Raquel))
+	((6,4),(1,John))
+	((6,4),(2,Bob))
+	((6,4),(3,Alice))
+	((6,4),(5,Marybelle))
+	((6,4),(6,Raquel))
+	((6,4),(4,Doris))
+	((10,9),(2,Bob))
+	((10,9),(3,Alice))
+	((10,9),(4,Doris))
+	((10,9),(1,John))
+	((10,9),(5,Marybelle))
+	((10,9),(6,Raquel))
+	
+
+CHAPTER 14 : Performance
 =============================
+
