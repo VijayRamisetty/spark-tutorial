@@ -1,9 +1,8 @@
 package com.vj.spark.basics;
 
 import java.util.Arrays;
+import java.util.Scanner;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -35,6 +34,13 @@ public class SparkWordCount {
 														   .reduceByKey((a,b)->(a+b));
 												
 		outputRdd.saveAsTextFile("src/main/resources/output");
+		
+		// included scanner below to view DAG on 
+		//20/05/02 22:39:27 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://localhost:4040
+		@SuppressWarnings("resource")
+		Scanner scanner = new Scanner(System.in);
+		scanner.nextLine();
+		
 		sc.close();
 	}
 

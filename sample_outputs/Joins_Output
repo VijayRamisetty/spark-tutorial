@@ -1,0 +1,66 @@
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+20/05/02 21:55:27 WARN SparkContext: Support for Scala 2.10 is deprecated as of Spark 2.1.0
+20/05/02 21:55:27 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+20/05/02 21:55:28 WARN Utils: Your hostname, Vijays-MacBook-Air.local resolves to a loopback address: 127.0.0.1; using 192.168.1.22 instead (on interface en0)
+20/05/02 21:55:28 WARN Utils: Set SPARK_LOCAL_IP if you need to bind to another address
+---- JOIN ( InnerJoin) -----
+
+[Stage 0:>			(0 + 0) / 4]
+[Stage 1:>  		(0 + 0) / 4]
+
+(6,(4,Raquel))
+(4,(18,Doris))
+
+----(LEFT) Outer JOIN  -----
+(4,(18,Optional[Doris]))
+(6,(4,Optional[Raquel]))
+(10,(9,Optional.empty))
+
+----handling optionals -----
+6 4 Raquel
+10 9 BLANK
+4 18 Doris
+
+----(Right) Outer JOIN  -----
+(3,(Optional.empty,Alice))
+(1,(Optional.empty,John))
+(5,(Optional.empty,Marybelle))
+(6,(Optional[4],Raquel))
+(2,(Optional.empty,Bob))
+(4,(Optional[18],Doris))
+
+4)Doris had 18 views 
+3)Alice had 0 views 
+1)John had 0 views 
+5)Marybelle had 0 views 
+6)Raquel had 4 views 
+2)Bob had 0 views 
+
+----Full Outer JOIN  -----
+(4,(Optional[18],Optional[Doris]))
+(3,(Optional.empty,Optional[Alice]))
+(1,(Optional.empty,Optional[John]))
+(5,(Optional.empty,Optional[Marybelle]))
+(6,(Optional[4],Optional[Raquel]))
+(10,(Optional[9],Optional.empty))
+(2,(Optional.empty,Optional[Bob]))
+
+----Cartesian JOIN  -----
+((4,18),(1,John))
+((4,18),(2,Bob))
+((4,18),(3,Alice))
+((4,18),(4,Doris))
+((4,18),(5,Marybelle))
+((4,18),(6,Raquel))
+((6,4),(1,John))
+((6,4),(2,Bob))
+((6,4),(3,Alice))
+((6,4),(4,Doris))
+((6,4),(5,Marybelle))
+((6,4),(6,Raquel))
+((10,9),(1,John))
+((10,9),(4,Doris))
+((10,9),(5,Marybelle))
+((10,9),(6,Raquel))
+((10,9),(2,Bob))
+((10,9),(3,Alice))

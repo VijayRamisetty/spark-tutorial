@@ -51,23 +51,23 @@ eclipse
 - maven project - pom.xml
 - maven build - goal - eclipse:eclipse
 
-	<dependencies>
-			<dependency>
-				<groupId>org.apache.spark</groupId>
-				<artifactId>spark-core_2.11</artifactId>
-				<version>2.2.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.spark</groupId>
-				<artifactId>spark-sql_2.11</artifactId>
-				<version>2.2.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.hadoop</groupId>
-				<artifactId>hadoop-hdfs</artifactId>
-				<version>2.2.0</version>
-			</dependency>
-	</dependencies>
+		<dependencies>
+				<dependency>
+					<groupId>org.apache.spark</groupId>
+					<artifactId>spark-core_2.11</artifactId>
+					<version>2.2.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.spark</groupId>
+					<artifactId>spark-sql_2.11</artifactId>
+					<version>2.2.0</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.hadoop</groupId>
+					<artifactId>hadoop-hdfs</artifactId>
+					<version>2.2.0</version>
+				</dependency>
+		</dependencies>
 
 
 Local
@@ -464,6 +464,58 @@ creates as  Cross Join , therefore no Optionals
 	((10,9),(6,Raquel))
 	
 
-CHAPTER 14 : Performance
+CHAPTER 13 : Performance
 =============================
+
+Transforamtions and Actions
+----------------------------
+- we are not building RDD, instead creating a plan
+- lazy loading
+- This can be observed using Debug Mode in Local	
+- it is visibile no data is loaded in until reaches an action
+
+
+DAG ( execution plan) / web UI
+-------------------------------
+- HistoryServer ( port : 4040 )
+- To view it locally, we have to make spark context to wait
+- To do that , add Scanner above sc.close();
+	
+	import java.util.Scanner;
+	
+	Scanner scanner = new Scanner(System.in);
+	scanner.nextLine();
+	
+	Logs:
+	-----
+	20/05/02 22:39:27 INFO SparkUI: Bound SparkUI to 0.0.0.0, and started at http://192.168.1.22:4040
+
+Narrow & Wide Transformations 
+------------------------------ 
+- ( Shuffles and Stages )
+
+Narrow Transformation
+---------------------
+- filter(fun) / mapToPair(..)
+- No movement of data across network is required
+- transformations happens within the node on respective partitions
+
+
+Wide Transformation
+--------------------
+- groupByKey()
+- example: a key on all nodes need to be moved to one
+- object has to undergo ser/deser
+- have to shuffle
+- creates Network Traffic 
+ 
+
+
+
+- Partitions & Key Skews
+- Avoiding groupByKey ( handing memory Exceptions)
+- Cache and Persistence
+
+
+
 
