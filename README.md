@@ -549,6 +549,7 @@ Example:
 
 - Solution: Add random Keys 
 
+
 	nonSkewdRdd.mapToPair( inputLine-> {
 		String[] cols = InputLine.split(":")
 		String key = cols[0] + (int) (Math.random() * n )
@@ -556,6 +557,7 @@ Example:
 		return new Tuple2<>(level,date)
 	})
 	// where n is num partitions of baseRdd
+	
 
 - This Salting requires additional handling 
 
