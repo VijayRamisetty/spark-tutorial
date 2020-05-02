@@ -1,0 +1,4 @@
+One of Apache Spark’s main goals is to make big data applications easier to write. 
+Spark has always had concise APIs in Scala and Python, but its Java API was verbose due to the lack of function expressions. 
+With the addition of lambda expressions in Java 8, we’ve updated Spark’s API to transparently support these expressions, while staying compatible with old versions of Java. 
+This new support will be available in Apache Spark 1.0.
