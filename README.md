@@ -55,12 +55,12 @@ eclipse
 				<dependency>
 					<groupId>org.apache.spark</groupId>
 					<artifactId>spark-core_2.11</artifactId>
-					<version>2.2.0</version>
+					<version>2.3.2</version>
 				</dependency>
 				<dependency>
 					<groupId>org.apache.spark</groupId>
 					<artifactId>spark-sql_2.11</artifactId>
-					<version>2.2.0</version>
+					<version>2.3.2</version>
 				</dependency>
 				<dependency>
 					<groupId>org.apache.hadoop</groupId>
@@ -547,14 +547,14 @@ Example:
 
 - In a logger more 90% INFOs than 5% WARNs and 5% others
 
-- Solution: Add random Keys 
-
+- Solution: Add random Keys
 
 	nonSkewdRdd.mapToPair( inputLine-> {
-		String[] cols = InputLine.split(":")
-		String key = cols[0] + (int) (Math.random() * n )
-		String value = cols[1]
-		return new Tuple2<>(level,date)
+		String[] cols = InputLine.split(":");
+		String key = cols[0] + (int) (Math.random() * n );
+		String value = cols[1];
+		
+		return new Tuple2<>(level,date);
 	})
 	// where n is num partitions of baseRdd
 	
@@ -583,6 +583,63 @@ how to figure out graphically
 
 - Expand a stage DAG, Hover on Stage-x's end node, if shows same transformation & row number of source code
 in another Stage-y's node, then it requires a cache
+
+
+
+
+SparkSQL
+=========
+==============
+
+- works with any kind of dataformat
+- provides rich API for structured data , example: records
+- Designed for Structured BigData
+- Highlevel API on top of RDDs with lot of Abstraction
+
+
+
+	SparkSession spark = SparkSession.builder()
+											 .appName("SparkSQL")
+											 .master("local[*]")
+											 //.config("spark.sql.warehouse.dir","files://c:/tmp/")
+											 .getOrCreate();
+			
+
+
+Read CSV
+--------
+
+	Dataset<Row> csvDataset = spark.read()
+				 .option("header", true)
+				 .csv("src/main/resources/students.csv");
+			
+	csvDataset.show();
+
+
+Dataset Basics
+----------------
+- DataSet just like RDD are immutable 
+- here also DAG being build
+- Lazy loading 
+
+
+
+count - csvDataset.count();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
