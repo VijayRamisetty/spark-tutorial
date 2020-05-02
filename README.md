@@ -76,8 +76,8 @@ Local
 	Logger.getLogger("org.apache").setLevel(Level.WARN);;
 			
 	SparkConf conf = new SparkConf()
-								.setAppName("App_JavaCollectionToRdd")
-								.setMaster("local[*]");
+	.setAppName("App_JavaCollectionToRdd")
+	.setMaster("local[*]");
 			
 	JavaSparkContext sc = new JavaSparkContext(conf);
 
@@ -203,7 +203,7 @@ GroupBy Key
 	- for a given key , all values needs to be collected from all nodes to single node
 	
 
-when groupbyKey() applied on ** PairRdd<String,String>** , a Transformation will occur creating  ** PairRdd<String, Iterable<String>> **
+when groupbyKey() applied on **PairRdd<String,String>** , a Transformation will occur creating  **PairRdd<String, Iterable<String>> **
 
 example:  
 
@@ -215,8 +215,8 @@ example:
 // groupByKey() usage - recommended not to use groupBy
 		
 	level_msg_pairRDD.groupByKey()
-						 .foreach(tuple -> 
-						 System.out.println(tuple._1 + " -- " + Iterables.size(tuple._2) + " instances" ));
+	.foreach(tuple -> 
+		System.out.println(tuple._1 + " -- " + Iterables.size(tuple._2) + " instances" ));
 		 
 
 ReduceBy Key
@@ -312,11 +312,11 @@ sortByKey
 		inputSample.add("hyd chn chn hyd");
 
 		JavaPairRDD<String, Long>  city_count = sc.parallelize(inputSample)
-													.flatMap(x-> Arrays.asList(x.split(" ")).iterator())
-													.mapToPair(x-> new Tuple2<String,Long>(x,1L))
-													.reduceByKey((x,y)-> (x+y));
-		city_count.sortByKey()
-					.foreach(x-> System.out.println(x));
+		.flatMap(x-> Arrays.asList(x.split(" ")).iterator())
+		.mapToPair(x-> new Tuple2<String,Long>(x,1L))
+		.reduceByKey((x,y)-> (x+y));
+	city_count.sortByKey()
+		.foreach(x-> System.out.println(x));
 
 // sort by value 
 -	( flip **city_count to count_city** - using mapToPair ) 
@@ -500,21 +500,87 @@ Narrow Transformation
 - No movement of data across network is required
 - transformations happens within the node on respective partitions
 
+- Number of partitions before and after Narrow transformation remains same
 
-Wide Transformation
+
+Wide Transformation 
 --------------------
 - groupByKey()
 - example: a key on all nodes need to be moved to one
 - object has to undergo ser/deser
 - have to shuffle
 - creates Network Traffic 
+
+- Number of partitions after Wide transformation reduces than before.
  
+other examples: Joins
+
+Shuffles:
+---------
+
+** Note: name of stage will be name of last transformation **
+
+Stage 0
+- name of stage will be name of last transformation
+- ex: mapToPair   
+
+Stage-1
+- switch from Stage0 to Stage1 happens for a wide Transformation
+- ex: reduceByKey
 
 
 
-- Partitions & Key Skews
-- Avoiding groupByKey ( handing memory Exceptions)
-- Cache and Persistence
+Median - on an average
+Min    - lowest of all tasks
+Max 	   - largest of all tasks
+
+
+
+
+Data Skews  ( Solution : Salting )
+----------- 
+ - Some workers keep on running where others are done
+ - Reason: 
+in an US org , 90 % of key are US and 10 % are of IN
+
+Example:
+
+- In a logger more 90% INFOs than 5% WARNs and 5% others
+
+- Solution: Add random Keys 
+
+	nonSkewdRdd.mapToPair( inputLine-> {
+		String[] cols = InputLine.split(":")
+		String key = cols[0] + (int) (Math.random() * n )
+		String value = cols[1]
+		return new Tuple2<>(level,date)
+	})
+	// where n is num partitions of baseRdd
+
+- This Salting requires additional handling 
+
+
+Avoiding groupByKey ( handing memory Exceptions)
+--------------------
+
+user mapTopair  followed by reduceBykey 
+
+- initially mapToPair & reduceByKey initially do **MAP_SIDE_REDUCE** on partition, which becomes narrow transformation 
+- then shuffle (very minimal shuffle )
+- then reduceBykey on rest minimal dataset
+
+
+Cache and Persistence
+----------------------
+when to apply
+
+- if an rdd is reused in code cache it 
+
+
+how to figure out graphically 
+
+- Expand a stage DAG, Hover on Stage-x's end node, if shows same transformation & row number of source code
+in another Stage-y's node, then it requires a cache
 
 
 
