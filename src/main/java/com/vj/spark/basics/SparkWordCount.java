@@ -29,6 +29,7 @@ public class SparkWordCount {
 		//System.out.println(textFileRDD.count());
 		
 		JavaPairRDD<String, Long> outputRdd = textFileRDD.flatMap( x->  Arrays.asList(x.split(" ")).iterator())
+														   .map(x-> x.replaceAll("[^a-zA-Z]", ""))
 														   .filter(x-> x.length() > 5)
 														   .mapToPair(x-> new Tuple2<String,Long>(x,1L))
 														   .reduceByKey((a,b)->(a+b));

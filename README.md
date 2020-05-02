@@ -73,13 +73,13 @@ eclipse
 Local
 -----
 
-Logger.getLogger("org.apache").setLevel(Level.WARN);;
-		
-SparkConf conf = new SparkConf()
-							.setAppName("App_JavaCollectionToRdd")
-							.setMaster("local[*]");
-		
-JavaSparkContext sc = new JavaSparkContext(conf);
+	Logger.getLogger("org.apache").setLevel(Level.WARN);;
+			
+	SparkConf conf = new SparkConf()
+								.setAppName("App_JavaCollectionToRdd")
+								.setMaster("local[*]");
+			
+	JavaSparkContext sc = new JavaSparkContext(conf);
 
 
 
@@ -265,9 +265,66 @@ Spark Word Count
 
 	sc.textFile("src/main/resources/input/input.txt")
 	   .flatMap(x->  Arrays.asList(x.split(" ")).iterator())
+	   .map(x-> x.replaceAll("[^a-zA-Z]", ""))
 	   .filter(x-> x.length() > 5)
 	   .mapToPair(x-> new Tuple2<String,Long>(x,1L))
 	   .reduceByKey((a,b)->(a+b))
 	   .saveAsTextFile("src/main/resources/output");
-	   
-	
+
+CHAPTER 9  : More on Transformations & Actions
+==============================================
+
+https://spark.apache.org
+
+Transformations
+---------------
+	map
+	filter
+	flatMap
+	groupByKey * 
+	reduceByKey *
+	sortByKey *
+	join
+Actions
+---------------
+	reduce
+	collect
+	count
+	first
+	take(n)
+	saveAsTextFile(path)
+	foreach(func)
+	countByKey() *
+
+
+sortByKey
+---------
+
+// sortBykey
+
+		System.out.println("------------------------------------");
+		List<String> inputSample = new  ArrayList<String>();
+		inputSample.add("hyd chn chn bnglr hyd");
+		inputSample.add("bnglr chn hyd hyd bnglr ");
+		inputSample.add("bnglr bnglr chn");
+		inputSample.add("hyd hyd chn chn bnglr ");
+		inputSample.add("hyd chn chn hyd");
+
+		JavaPairRDD<String, Long>  city_count = sc.parallelize(inputSample)
+													.flatMap(x-> Arrays.asList(x.split(" ")).iterator())
+													.mapToPair(x-> new Tuple2<String,Long>(x,1L))
+													.reduceByKey((x,y)-> (x+y));
+		city_count.sortByKey()
+					.foreach(x-> System.out.println(x));
+
+// sort by value 
+-	( flip **city_count to count_city** - using mapToPair ) 
+
+		System.out.println("------------------------------------");
+		JavaPairRDD<Long, String> count_city = city_count.mapToPair(x-> new Tuple2<Long,String>(x._2,x._1));
+		count_city.sortByKey(false)
+					.foreach(x-> System.out.println(x));
+
+
+CHAPTER 10 - Sort & Coalesce
+=============================
