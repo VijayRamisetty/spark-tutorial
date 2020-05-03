@@ -391,12 +391,12 @@ join ( innerjoin) :
 
 -	match and get which are present in both
 
-	//<user, <visits,name>>    note: Join itself is InnerJoin
-	JavaPairRDD<Integer, Tuple2<Integer, String>> joinedRdd  = user_visit_rdd.join(user_name_rdd);
-
-	
-	(4,(18,Doris))
-	(6,(4,Raquel))
+			//<user, <visits,name>>    note: Join itself is InnerJoin
+			JavaPairRDD<Integer, Tuple2<Integer, String>> joinedRdd  = user_visit_rdd.join(user_name_rdd);
+		
+			
+			(4,(18,Doris))
+			(6,(4,Raquel))
 
 (Left) OuterJoin
 -----------------
@@ -549,14 +549,14 @@ Example:
 
 - Solution: Add random Keys
 
-	nonSkewdRdd.mapToPair( inputLine-> {
-		String[] cols = InputLine.split(":");
-		String key = cols[0] + (int) (Math.random() * n );
-		String value = cols[1];
-		
-		return new Tuple2<>(level,date);
-	})
-	// where n is num partitions of baseRdd
+			nonSkewdRdd.mapToPair( inputLine-> {
+				String[] cols = InputLine.split(":");
+				String key = cols[0] + (int) (Math.random() * n );
+				String value = cols[1];
+				
+			return new Tuple2<>(level,date);
+			})
+			// where n is num partitions of baseRdd
 	
 
 - This Salting requires additional handling 
@@ -598,12 +598,16 @@ SparkSQL
 
 
 
-	SparkSession spark = SparkSession.builder()
-											 .appName("SparkSQL")
-											 .master("local[*]")
-											 //.config("spark.sql.warehouse.dir","files://c:/tmp/")
-											 .getOrCreate();
-			
+		SparkSession spark = SparkSession.builder()
+			.appName("SparkSQL")
+			.master("local[*]")
+			//.config("spark.sql.warehouse.dir","files://c:/tmp/")
+			.getOrCreate();
+		
+Read Text File
+---------------
+
+    Dataset<String> logData = spark.read().textFile(logFile).cache();
 
 
 Read CSV
