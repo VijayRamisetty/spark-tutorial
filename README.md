@@ -603,6 +603,9 @@ SparkSQL
 			.master("local[*]")
 			//.config("spark.sql.warehouse.dir","files://c:/tmp/")
 			.getOrCreate();
+			
+- DataFrames  and DataSets are API
+
 		
 Read Text File
 ---------------
@@ -630,20 +633,75 @@ Dataset Basics
 
 count - csvDataset.count();
 
+Multiple ways of applying filter
+-------------------------------
+Refer SparkSqlBasics.java
+
+
+SQL Syntax
+===========
+		Dataset<Row> csvDataset = spark.read()
+					 .option("header", true)
+					 .csv("src/main/resources/students.csv");
+			 
+
+// filter using spark temp table view
+		
+			csvDataset.createOrReplaceTempView("students_tbl");
+			
+			Dataset<Row> mathDataSet6 = spark.sql("SELECT * from students_tbl where subject ='Math' and year > 2007");
+			
+			mathDataSet6.show();
+
+
+In memory input data / creating sample dataset on fly
+-----------------------------------------------------
+- helpful during unit testing 
+
+
+		    // list of Rows
+			List<Row> inMemory = new ArrayList<Row>();
+			inMemory.add(RowFactory.create("WARN","2016-12-31 04:19:32"));
+		    inMemory.add(RowFactory.create("FATAL","2016-12-31 03:22:34"));
+		    inMemory.add(RowFactory.create("WARN","2016-12-31 03:21:21"));
+		    inMemory.add(RowFactory.create("INFO","2015-4-21 14:32:21"));
+		    inMemory.add(RowFactory.create("FATAL","2015-4-21 19:23:20"));
+	
+		    // fields
+			StructField[] fields = new StructField[]  {
+					new StructField("level",DataTypes.StringType,false,Metadata.empty()),
+					new StructField("datetime",DataTypes.StringType,false,Metadata.empty())
+			};
+			
+			// schema
+			StructType schema = new StructType(fields );
+			
+			// schema + listOfRows
+			Dataset<Row> dataset = spark.createDataFrame(inMemory,schema);
+			dataset.show();
 
 
 
+Grouping and aggregation
+------------------------
+
+https://spark.apache.org/docs/latest/ -> API docs -> SQL Built-in Functions
 
 
+date_Format(datetime,'dd-MM-yyyy')
+
+Note:
+---- 
+Any column which is not part of the grouping must have an Aggregation function performed on it.
+
+To drop a column from a Dataset
+-------------------------------
+-  newresults =  results.drop(column) 
 
 
-
-
-
-
-
-
-
+Spark SQl limitaiton
+---------------------
+pivots wont work the sql query way
 
 
 
