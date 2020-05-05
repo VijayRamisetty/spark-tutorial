@@ -101,14 +101,14 @@ public class SparkBasicsMain {
 
 
 		});
-		
+
 		// groupByKey() usage - recommended not to use groupBy
-		
+
 		level_msg_pairRDD.groupByKey()
-						 .foreach(tuple -> 
-						 System.out.println(tuple._1 + " -- " + Iterables.size(tuple._2) + " instances" ));
-		
-		
+						  .foreach(tuple -> 
+						  		System.out.println(tuple._1 + " -- " + Iterables.size(tuple._2) + " instances" ));
+
+
 
 		// reduceByKey()
 		// Example: get count by warning level
@@ -125,38 +125,65 @@ public class SparkBasicsMain {
 
 			System.out.println(tuple._1 + "-- " +tuple._2);
 		});
-		
-		
+
+
 		// representing all together in one
 
 		sc.parallelize(inputDataLog)
-		  .mapToPair(record ->   new Tuple2<>(record.split(":")[0],1L) )
-		  .reduceByKey((val1,val2) -> val1+val2)
-		  .foreach(tuple -> System.out.println(tuple._1 + "--" + tuple._2));
-		
-		
+			.mapToPair(record ->   new Tuple2<>(record.split(":")[0],1L) )
+			.reduceByKey((val1,val2) -> val1+val2)
+			.foreach(tuple -> System.out.println(tuple._1 + "--" + tuple._2));
+
+
 		// flatMap & filter 
-		
+
 		JavaRDD<String> sentensesRdd = sc.parallelize(inputDataLog);
-        JavaRDD<String> wordsRdd = sentensesRdd.flatMap(record -> Arrays.asList(record.split(" ")).iterator());
-			
-        wordsRdd.filter(word -> word.length() > 1);
-        
+		JavaRDD<String> wordsRdd = sentensesRdd.flatMap(record -> Arrays.asList(record.split(" ")).iterator());
+
+		wordsRdd.filter(word -> word.length() > 1);
+
 		wordsRdd.foreach(word-> System.out.println(word));
-		
+
 		// flatMap & Filter 
 		sc.parallelize(inputDataLog)
-		  .flatMap(record -> Arrays.asList(record.split(" ")).iterator())
-		  .filter(word -> word.length() > 1)
-		  .foreach(word-> System.out.println(word));
-		
-		
-		// Reading from Disk - a text File
-		
+			.flatMap(record -> Arrays.asList(record.split(" ")).iterator())
+			.filter(word -> word.length() > 1)
+			.foreach(word-> System.out.println(word));
 
-		 JavaRDD<String> textFileRdd = sc.textFile("");
-		 
-		
+
+		// take
+		List<String> takeList = wordsRdd.map(x-> x.replaceAll("[^a-zA-Z]", ""))
+				.take(10);
+		System.out.println(takeList);
+
+		// sortBykey
+		System.out.println("------------------------------------");
+		List<String> inputSample = new  ArrayList<String>();
+		inputSample.add("hyd chn chn bnglr hyd");
+		inputSample.add("bnglr chn hyd hyd bnglr ");
+		inputSample.add("bnglr bnglr chn");
+		inputSample.add("hyd hyd chn chn bnglr ");
+		inputSample.add("hyd chn chn hyd");
+
+
+		JavaPairRDD<String, Long>  city_count = sc.parallelize(inputSample)
+													.flatMap(x-> Arrays.asList(x.split(" ")).iterator())
+													.mapToPair(x-> new Tuple2<String,Long>(x,1L))
+													.reduceByKey((x,y)-> (x+y));
+
+		city_count.sortByKey()
+					.foreach(x-> System.out.println(x));
+
+		// sort by value 
+		System.out.println("------------------------------------");
+
+		JavaPairRDD<Long, String> count_city = city_count.mapToPair(x-> new Tuple2<Long,String>(x._2,x._1));
+
+		count_city.sortByKey(false)
+					.foreach(x-> System.out.println(x));
+
+
+
 		sc.close();
 	}
 
