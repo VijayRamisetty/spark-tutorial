@@ -699,7 +699,7 @@ To drop a column from a Dataset
 -  newresults =  results.drop(column) 
 
 
-Spark SQl limitaiton
+Spark SQl Limitaiton
 ---------------------
 pivots wont work the sql query way
 
