@@ -2,6 +2,7 @@ package com.vj.spark.sparksql;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.spark.api.java.function.FilterFunction;
 import org.apache.spark.sql.Column;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -67,10 +68,11 @@ public class SparkSqlBasics {
 		mathDataset.show();
 		
 		// filter -  using lambda
-		Dataset<Row> mathDataset1 = csvDataset.filter(row -> 
+		Dataset<Row> mathDataset1 = csvDataset.filter((FilterFunction<Row>) row ->
 			row.getAs("subject").equals("Math") && Integer.parseInt(row.getAs("year")) > 2006
 		);
-		
+
+
 		mathDataset1.show();
 		
 		// filter using columns - approach1

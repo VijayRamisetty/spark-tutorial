@@ -685,8 +685,8 @@ In memory input data / creating sample dataset on fly
 Grouping and aggregation
 ------------------------
 
-https://spark.apache.org/docs/latest/ -> API docs -> SQL Built-in Functions
-
+-   https://spark.apache.org/docs/latest/ -> API docs -> SQL Built-in Functions
+-   functions that can be applied on dataframe = https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/functions.html 
 
 date_Format(datetime,'dd-MM-yyyy')
 
